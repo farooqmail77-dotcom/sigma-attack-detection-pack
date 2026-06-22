@@ -1,0 +1,45 @@
+title: PowerShell Encoded Command Execution
+id: d4e5f6a7-0004-4b8c-d9e0-f1a2b3c4d5e6
+status: stable
+description: >
+  Detects PowerShell launched with an encoded command (-EncodedCommand / -enc).
+  Attackers encode commands (T1059.001) to bypass simple string matching in
+  security products and hide malicious payload content.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://lolbas-project.github.io/#/download
+author: farooqmail77-dotcom
+date: 2024/01/01
+tags:
+  - attack.execution
+  - attack.t1059.001
+  - attack.defense_evasion
+  - attack.t1027
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+    CommandLine|contains:
+      - ' -EncodedCommand '
+      - ' -enc '
+      - ' -EC '
+      - ' -e '
+  filter_legitimate:
+    # Exclude known-good management tools
+    ParentImage|endswith:
+      - '\sccm.exe'
+      - '\ccmexec.exe'
+  condition: selection and not filter_legitimate
+falsepositives:
+  - Some legitimate management tools use encoded commands
+  - Security tools testing PowerShell
+level: medium
+fields:
+  - CommandLine
+  - ParentImage
+  - User
+  - Computer
