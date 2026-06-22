@@ -1,0 +1,35 @@
+title: Windows Brute Force Login Attempt
+id: a1b2c3d4-0001-4e5f-a6b7-c8d9e0f1a2b3
+status: stable
+description: >
+  Detects multiple failed Windows login attempts from a single source
+  within a short time window — indicative of password brute-force or
+  password-spray activity (T1110).
+references:
+  - https://attack.mitre.org/techniques/T1110/
+author: farooqmail77-dotcom
+date: 2024/01/01
+modified: 2024/06/01
+tags:
+  - attack.credential_access
+  - attack.t1110
+  - attack.t1110.001
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID:
+      - 4625    # Failed logon
+      - 4771    # Kerberos pre-auth failed
+  timeframe: 5m
+  condition: selection | count() by TargetUserName, IpAddress > 10
+falsepositives:
+  - Legitimate users forgetting passwords
+  - Password-sync tools
+level: medium
+fields:
+  - TargetUserName
+  - IpAddress
+  - LogonType
+  - FailureReason
